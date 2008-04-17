@@ -3,7 +3,7 @@
 Plugin Name: jaiku-mbz
 Plugin URI: http://mbz.nu/portfolio/jaiku-mbz/
 Description: Plugin widget that lets you display your latest jaikus in the sidebar. Somewhat based on the plugin jaiku-activity by Douglas Karr (http://www.douglaskarr.com/projects/jaiku-plugin).
-Version: 0.1.2
+Version: 0.1.3
 Author: Matts Bengtzén
 Author URI: http://mbz.nu/
 */
