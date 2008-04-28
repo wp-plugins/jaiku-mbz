@@ -2,8 +2,8 @@
 /*
 Plugin Name: jaiku-mbz
 Plugin URI: http://mbz.nu/portfolio/jaiku-mbz/
-Description: Plugin widget that lets you display your latest jaikus in the sidebar. Somewhat based on the plugin jaiku-activity by Douglas Karr (http://www.douglaskarr.com/projects/jaiku-plugin).
-Version: 0.1.3
+Description: Plugin widget that lets you display your latest jaikus in the sidebar. Somewhat based on the plugin jaiku-activity by Douglas Karr.
+Version: 0.1.4
 Author: Matts Bengtzén
 Author URI: http://mbz.nu/
 */
@@ -71,6 +71,10 @@ function widget_jaiku_mbz_register()
 			$wpjm_title		= stripslashes($options['wpjm_title']);
 			$wpjm_user 		= stripslashes($options['wpjm_user']);
 			$wpjm_minutes 	= stripslashes($options['wpjm_minutes']);
+			$wpjm_count 	= stripslashes($options['wpjm_count']);
+			
+			if( !is_numeric($wpjm_count) )
+				$wpjm_count = 5;
 
 				
 			if( !wpjm_verify_cache_dir($wpjm_cache_dir) )
@@ -134,14 +138,17 @@ function widget_jaiku_mbz_register()
 						$i = 0;
 						foreach ($xml->xpath('//item') as $item) 
 						{
-							if(++$i>=10)
+							$i++;
+							
+							if($i>$wpjm_count)
 								break;
 							
 							$title = strip( (string)$item->title );
 							$link = strip( (string)$item->link );
 							
-							preg_match('/<\/a>([^<>]*)<\/p>/i',(string)$item->description, $time);
-							$time = strip( $time[1] );
+							// We need to explicitly name the namespace for jaikus time-inclusion
+							$jaiku = $item->children("http://jaiku.com/ns");
+							$time = $jaiku->timesince;
 							
 							if(substr($time,-1,1)=='.')
 							{
@@ -226,11 +233,12 @@ function widget_jaiku_mbz_register()
 			$wpjm_minutes = htmlspecialchars($options['wpjm_minutes'], ENT_QUOTES);
 			$wpjm_count   = htmlspecialchars($options['wpjm_count'], ENT_QUOTES);
 			
-			if( empty($wpjm_minutes) )
+			if( 0==strlen($wpjm_minutes) )
 				$wpjm_minutes = "15";
-			if( empty($wpjm_count) )
+			if( 0==strlen($wpjm_count) )
 				$wpjm_count = "5";
 			
+			echo '<a href="http://mbz.nu/portfolio/jaiku-mbz/">Jaiku-mbz homepage!</a>' . "\n";
 			echo '<p>' . "\n";
 			echo '	<label for="wpjm_title">'._e('Title:').'</label>' . "\n";
 			echo '	<input style="width: 250px;" id="wpjm_title" name="wpjm_title" type="text" value="'.$wpjm_title.'" />' . "\n";
@@ -242,7 +250,7 @@ function widget_jaiku_mbz_register()
 			echo '	<select name="wpjm_count" id="wpjm_count">' . "\n";
 			for($i=1;$i<=10;$i++)
 			{
-				echo '\t\t<option value="'.$i.'"'.(((string)$i)==$wpjm_count?' selected="selected"':'').'>'.$i.'</option>' . "\n";	
+				echo '\t\t<option value="'.$i.'"'.($i==$wpjm_count?' selected="selected"':'').'>'.$i.'</option>' . "\n";	
 			}			
 			echo '	</select>' . "\n";
 			echo '	<br />' . "\n";
@@ -263,9 +271,9 @@ function widget_jaiku_mbz_register()
 		{
 			?>
 			<style type="text/css">
-			.wpjm_time {color: #0000ff;font-size:11px;font-weight:bold;font-family:Courier,Tahoma,Helvetica,Verdana;}
+			.wpjm_time {font-weight: bold;}
 			</style>
-			<?php	
+			<?php
 		}
 	
 		register_sidebar_widget('Jaiku-mbz', 'widget_jaiku_mbz', null, 'jaiku_mbz');
